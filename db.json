@@ -1,0 +1,116 @@
+{
+  "mekanik": [
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 100.0
+    },
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 60.0
+    },
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 40.0
+    }
+  ],
+  "insaat": [
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 100.0
+    },
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 60.0
+    },
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 40.0
+    }
+  ],
+  "elektrik": [
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 100.0
+    },
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 60.0
+    },
+    {
+      "workorderId": 412789,
+      "taskId": 40,
+      "wonum": "378376",
+      "description": "HÜSEYİN ŞİMŞİR",
+      "owner": "CENGİZ",
+      "workType": "INS",
+      "status": "INPRG",
+      "statusDateTimeStamp": 1545849853981,
+      "estimatedDuration": 15600.0,
+      "percentage": 40.0
+    }
+  ]
+}
