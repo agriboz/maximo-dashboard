@@ -48,20 +48,17 @@
 
         <b-table-column
           field="workType"
-          label="Is Kaynagi"
-          width="500">
+          label="Is Kaynagi">
           {{ props.row.workType }}
         </b-table-column>
         <b-table-column
           field="estimatedDuration"
-          label="Std Süre"
-          width="500">
+          label="Std Süre">
           {{ props.row.estimatedDuration }}
         </b-table-column>
         <b-table-column
           field="percentage"
-          label="Durum"
-          width="500">
+          label="Durum">
           <span
             :class="type(props.row.percentage)"
             class="tag">
