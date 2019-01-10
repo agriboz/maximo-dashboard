@@ -1,89 +1,136 @@
 <template>
-  <section class="section">
-    <b-table
-      :data="data"
-      :loading="loading"
-      :total="total"
-      :per-page="perPage"
-      :mobile-cards="false"
-      :current-page.sync="currentPage"
-      :visible="true"
-      :paginated="isPaginated"
-      striped>
+  <section class="columns">
+    <div class="column is-6">
+      <h1 class="title">Bekleyen İşler</h1>
+      <b-table
+        :data="approved"
+        :loading="loading"
+        :total="totalApproved"
+        :per-page="perPage"
+        :mobile-cards="false"
+        :current-page.sync="currentPageApproved"
+        :visible="true"
+        :paginated="isPaginated"
+        striped>
 
-      <template slot-scope="props">
-        <b-table-column
-          field="owner"
-          label="Sorumlu"
-          sortable>
-          {{ props.row.owner }}
-        </b-table-column>
+        <template slot-scope="props">
+          <b-table-column
+            field="owner"
+            label="Sorumlu"
+            sortable>
+            {{ props.row.owner }}
+          </b-table-column>
 
-        <b-table-column
-          field="wonum"
-          label="Is Emri No"
-          sortable>
-          {{ props.row.wonum }}
-        </b-table-column>
+          <b-table-column
+            field="wonum"
+            label="İş Emri No"
+            sortable>
+            {{ props.row.wonum }}
+          </b-table-column>
 
-        <b-table-column
-          field="description"
-          label="Isim"
-          sortable>
-          {{ props.row.description }}
-        </b-table-column>
+          <b-table-column
+            field="description"
+            label="İsim"
+            sortable>
+            {{ props.row.description }}
+          </b-table-column>
 
-        <b-table-column
-          field="statusDateTimeStamp"
-          label="Release Date"
-          sortable>
-          {{ new Date(props.row.statusDateTimeStamp).toLocaleDateString('tr') }}
-        </b-table-column>
+          <b-table-column
+            field="statusDateTimeStamp"
+            label="Gelme Tarihi ve Saati"
+            sortable>
+            {{ new Date(props.row.statusDateTimeStamp).toLocaleString('tr') }}
+          </b-table-column>
 
-        <b-table-column
-          field="workType"
-          label="Is Kaynagi">
-          {{ props.row.workType }}
-        </b-table-column>
-        <b-table-column
-          field="estimatedDuration"
-          label="Std Süre">
-          {{ props.row.estimatedDuration }}
-        </b-table-column>
-        <b-table-column
-          field="percentage"
-          label="Durum">
-          <progress
-            :value="props.row.percentage"
-            :max="100"
-            :class="type(props.row.percentage)"
-            class="progress"
-          > {{ props.row.percentage }}
-          </progress>
-          <span
-            :class="type(props.row.percentage)"
-            class="tag">
-            {{ props.row.percentage }}
-          </span>
-        </b-table-column>
-      </template>
-    </b-table>
+          <b-table-column
+            field="workType"
+            label="İş Kaynağı">
+            {{ props.row.workType }}
+          </b-table-column>
+        </template>
+      </b-table>
+    </div>
+    <div class="column is-6">
+      <h1 class="title">Devam Eden İşler</h1>
+      <b-table
+        :data="inProgress"
+        :loading="loading"
+        :total="totalInProgress"
+        :per-page="perPage"
+        :mobile-cards="false"
+        :current-page.sync="currentPageInProgess"
+        :visible="true"
+        :paginated="isPaginated"
+        striped>
 
+        <template slot-scope="props">
+          <b-table-column
+            field="owner"
+            label="Sorumlu"
+            sortable>
+            {{ props.row.owner }}
+          </b-table-column>
+
+          <b-table-column
+            field="wonum"
+            label="İş Emri No"
+            sortable>
+            {{ props.row.wonum }}
+          </b-table-column>
+
+          <b-table-column
+            field="description"
+            label="İsim"
+            sortable>
+            {{ props.row.description }}
+          </b-table-column>
+
+          <b-table-column
+            field="statusDateTimeStamp"
+            label="Başlama Tarihi ve Saati"
+            sortable>
+            {{ new Date(props.row.statusDateTimeStamp).toLocaleString('tr') }}
+          </b-table-column>
+
+          <b-table-column
+            field="workType"
+            label="İş Kaynağı">
+            {{ props.row.workType }}
+          </b-table-column>
+          <b-table-column
+            field="percentage"
+            label="Std. Süre %Durum">
+            {{ secondsToFullHour(props.row.estimatedDuration) }}
+            <div class="perc-wrapper">
+              <progress
+                :value="props.row.percentage"
+                :max="100"
+                :class="type(props.row.percentage)"
+                class="progress"
+              > {{ props.row.percentage }}
+              </progress>
+              <span
+                :class="type(props.row.percentage)"
+                class="perc-value">
+                {{ secondsToFullHour(props.row.timeElapsed) }}
+              </span>
+            </div>
+          </b-table-column>
+        </template>
+      </b-table>
+    </div>
   </section>
 </template>
 
 <script>
 export default {
-  /* async asyncData({ $axios, params }) {
-    const { data } = await $axios.get(`http://localhost:3001/${params.id}`)
-    return { data }
-  }, */
   name: 'HomePage',
   data() {
     return {
       data: [],
       isPaginated: true,
-      currentPage: 1,
+      currentPageApproved: 1,
+      currentPageInProgess: 1,
       total: 0,
       loading: false,
       sortField: 'workorderId',
@@ -94,9 +141,29 @@ export default {
     }
   },
   computed: {
-    pageCount() {
-      return Math.ceil(this.data.length / this.perPage)
+    inProgress() {
+      return this.data.filter(item => item.status === 'INPRG')
     },
+    approved() {
+      return this.data.filter(item => item.status === 'APPR')
+    },
+
+    totalApproved() {
+      return this.approved.length
+    },
+
+    totalInProgress() {
+      return this.inProgress.length
+    },
+
+    pageCountApproved() {
+      return Math.ceil(this.approved.length / this.perPage)
+    },
+
+    pageCountInprogress() {
+      return Math.ceil(this.inProgress.length / this.perPage)
+    },
+
     hasLast() {
       return this.currentPage <= this.pageCount - 2
     }
@@ -107,15 +174,26 @@ export default {
     setInterval(() => {
       // this.currentPage++
 
-      if (this.currentPage !== this.pageCount) {
-        this.currentPage++
+      if (this.currentPageApproved !== this.pageCountApproved) {
+        this.currentPageApproved++
       } else {
-        this.currentPage = 1
+        this.currentPageApproved = 1
+      }
+      if (this.currentPageInProgess !== this.pageCountInprogress) {
+        this.currentPageInProgess++
+      } else {
+        this.currentPageInProgess = 1
       }
     }, 5000)
   },
 
   methods: {
+    secondsToFullHour(item) {
+      var date = new Date(null)
+      date.setSeconds(item)
+      const result = date.toISOString().substr(11, 5)
+      return result
+    },
     async loadAsyncData() {
       console.log(this.$router)
       this.loading = true
@@ -147,3 +225,17 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.perc-wrapper {
+  position: relative;
+}
+
+.perc-wrapper .perc-value {
+  position: absolute;
+  position: absolute;
+  top: -2px;
+  font-size: 0.8rem;
+  left: 2px;
+}
+</style>

@@ -1,9 +1,7 @@
 <template>
   <div>
-    <section class="columns">
-      <div class="column is-full">
-        <nuxt />
-      </div>
+    <section class="container is-fluid">
+      <nuxt />
     </section>
   </div>
 </template>
