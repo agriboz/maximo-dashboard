@@ -136,6 +136,14 @@
         </b-table>
       </div>
     </div>
+    <div class="kayan-yazi">
+      <div v-if="k in kayanYaziWrapper">
+        <marquee>
+          <h6>{{ k.subject }}</h6>
+          <p>{{ k.message }}</p>
+        </marquee>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -144,6 +152,7 @@ export default {
   name: 'HomePage',
   data() {
     return {
+      kayanYaziWrapper: [],
       data: [],
       isPaginated: true,
       isPaginationSimple: false,
@@ -187,6 +196,10 @@ export default {
     }
   },
 
+  beforeMount() {
+    this.kayanYazi()
+  },
+
   mounted() {
     this.loading = true
     setInterval(() => {
@@ -209,6 +222,19 @@ export default {
   },
 
   methods: {
+    kayanYazi() {
+      this.$axios
+        .get(`http://<ip>:9080/maximo-dashboard/api/bulletinboard/`, {
+          crossDomain: true
+        })
+        .then(({ data }) => {
+          this.kayanYaziWrapper = data.data
+        })
+        .catch(error => {
+          throw error
+        })
+    },
+
     secondsToFullHour(item) {
       var date = new Date(null)
       date.setSeconds(item)
@@ -367,5 +393,12 @@ td div {
     -webkit-transform: translateX(-100%); /* Browser bug fix */
     transform: translateX(-100%);
   }
+}
+
+.kayan-yazi {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 50px;
 }
 </style>
