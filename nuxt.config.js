@@ -65,5 +65,8 @@ module.exports = {
         })
       }
     }
+  },
+  router: {
+    base: '/maximo-dashboard/'
   }
 }
