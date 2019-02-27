@@ -2,11 +2,11 @@
   <section id="main-content">
     <div
       id="header">
-      <h1 class="title has-text-centered has-text-white">{{ ($router.history.current.params.id)?
-      ($router.history.current.params.id).toUpperCase():'TÜM İŞLER' }} </h1>
+      <h1 class="title has-text-centered has-text-white">{{ ($router.history.current.query.type)?
+      ($router.history.current.query.type).toUpperCase():'TÜM İŞLER' }} </h1>
     </div>
-    <div 
-      id="content" 
+    <div
+      id="content"
       class="columns">
       <div class="column is-6">
         <h1 class="table_label title  has-text-white is-size-4">Bekleyen İşler</h1>
@@ -116,8 +116,8 @@
               field="percentage"
               label="Durum">
 
-              <div 
-                v-if="props.row.percentage" 
+              <div
+                v-if="props.row.percentage"
                 class="perc-wrapper">
                 <progress
                   :value="props.row.percentage"
@@ -154,7 +154,24 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
+  /* async asyncData({ query, params }) {
+    console.log(query, params)
+    // We can use async/await ES6 feature
+    const { data } = await axios
+      .get(`/api/workorder?type=${query.type}`, {
+        crossDomain: true
+      })
+      .catch(error => {
+        this.data = []
+        this.total = 0
+        throw error
+      })
+    return { data: data }
+  }, */
+
   name: 'HomePage',
   data() {
     return {
@@ -225,8 +242,6 @@ export default {
     }
   },
   mounted() {
-    debugger
-    // window.location.href ||
     var currentUrl = 'http://10.10.10.18:9080/maximo-dashboard/'
     var appName = 'maximo-dashboard'
     var appNameIndex = currentUrl.lastIndexOf(appName)
@@ -302,8 +317,9 @@ export default {
       return dString
     },
     async loadAsyncData() {
+      console.log(this.$router.history.current)
       this.$axios
-        .get(`/api/workorder?type=${this.$router.history.current.params.id}`, {
+        .get(`/api/workorder?type=${this.$router.history.current.query.type}`, {
           crossDomain: true
         })
         .then(({ data }) => {
