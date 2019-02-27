@@ -226,8 +226,8 @@ export default {
   },
   mounted() {
     debugger
-    var currentUrl =
-      window.location.href || 'http://10.10.10.18:9080/maximo-dashboard/'
+    // window.location.href ||
+    var currentUrl = 'http://10.10.10.18:9080/maximo-dashboard/'
     var appName = 'maximo-dashboard'
     var appNameIndex = currentUrl.lastIndexOf(appName)
     if (appNameIndex > 0) {
