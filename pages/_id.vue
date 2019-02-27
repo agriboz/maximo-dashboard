@@ -480,7 +480,7 @@ body {
 }
 
 #content {
-  height: calc(100vh - (70px + 50px));
+  height: calc(100vh - (70px + 65px));
 }
 #header {
   position: fixed;
@@ -501,16 +501,15 @@ body {
   left: 0;
   z-index: 999;
   width: 100%;
-  height: 50px;
+  height: 65px;
   background-color: rgb(44, 58, 71);
 }
 .marquee {
   font-family: 'Comic Sans MS';
-  font-size: 1.5em;
+  font-size: 2.5em;
   font-weight: bold;
-  line-height: 1em;
-  color: #ffffff;
-  padding: 0.5em;
+  color: #ff0000;
+  padding: 4px;
 }
 
 .table_label {
