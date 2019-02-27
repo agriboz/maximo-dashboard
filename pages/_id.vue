@@ -1,16 +1,15 @@
 <template>
-  <section>
-    <div class="columns">
-      <div
-        class="column is-12 has-text-centered has-text-white"
-        style="margin-top: 16px; background-color: #2C3A47">
-        <h1 class="title  has-text-white is-size-2">{{ ($router.history.current.params.id)?
-        ($router.history.current.params.id).toUpperCase():'TÜM İŞLER' }} </h1>
-      </div>
+  <section id="main-content">
+    <div
+      id="header">
+      <h1 class="title has-text-centered has-text-white">{{ ($router.history.current.params.id)?
+      ($router.history.current.params.id).toUpperCase():'TÜM İŞLER' }} </h1>
     </div>
-    <div class="columns">
+    <div 
+      id="content" 
+      class="columns">
       <div class="column is-6">
-        <h1 class="title  has-text-white is-size-4">Bekleyen İşler</h1>
+        <h1 class="table_label title  has-text-white is-size-4">Bekleyen İşler</h1>
         <b-table
           :data="approved"
           :loading="loading"
@@ -49,7 +48,7 @@
               field="statusDateTimeStamp"
               label="Gelme Tarihi ve Saati"
               sortable>
-              <div>{{ new Date(props.row.statusDateTimeStamp).toLocaleString('tr') }}</div>
+              <div>{{ timestampToDateString(props.row.statusDateTimeStamp) }}</div>
             </b-table-column>
 
             <b-table-column
@@ -61,7 +60,7 @@
         </b-table>
       </div>
       <div class="column is-6">
-        <h1 class="title  has-text-white is-size-4">Devam Eden İşler</h1>
+        <h1 class="table_label title  has-text-white is-size-4">Devam Eden İşler</h1>
         <b-table
           :data="inProgress"
           :loading="loading"
@@ -100,7 +99,7 @@
               field="statusDateTimeStamp"
               label="Başlama Tarihi ve Saati"
               sortable>
-              <div>{{ new Date(props.row.statusDateTimeStamp).toLocaleString('tr') }}</div>
+              <div>{{ timestampToDateString(props.row.statusDateTimeStamp) }}</div>
             </b-table-column>
 
             <b-table-column
@@ -117,7 +116,9 @@
               field="percentage"
               label="Durum">
 
-              <div class="perc-wrapper">
+              <div 
+                v-if="props.row.percentage" 
+                class="perc-wrapper">
                 <progress
                   :value="props.row.percentage"
                   :max="100"
@@ -136,11 +137,16 @@
         </b-table>
       </div>
     </div>
-    <div class="kayan-yazi">
-      <div v-if="k in kayanYaziWrapper">
-        <marquee>
-          <h6>{{ k.subject }}</h6>
-          <p>{{ k.message }}</p>
+    <div
+      v-if="bbmessage.length>0"
+      id="footer">
+      <div>
+        <marquee
+          class="marquee"
+          direction="left"
+          scrollamount="11"
+          behavior="scroll">
+          <p>{{ bbmessage }}</p>
         </marquee>
       </div>
     </div>
@@ -168,11 +174,34 @@ export default {
     }
   },
   computed: {
+    bbmessage() {
+      var messages = this.kayanYaziWrapper.map(function(m) {
+        return m.message
+      })
+
+      var message = messages.join()
+      var div = document.createElement('div')
+      div.innerHTML = message
+      var text = div.textContent || div.innerText || ''
+      return text
+    },
     inProgress() {
-      return this.data.filter(item => item.status === 'INPRG')
+      var fData = this.data.filter(item => item.status === 'INPRG') || []
+      if (fData.length % this.perPage > 0) {
+        for (let i = fData.length % this.perPage; i < this.perPage; i++) {
+          fData.push({})
+        }
+      }
+      return fData
     },
     approved() {
-      return this.data.filter(item => item.status === 'APPR')
+      var fData = this.data.filter(item => item.status === 'APPR') || []
+      if (fData.length % this.perPage > 0) {
+        for (let i = fData.length % this.perPage; i < this.perPage; i++) {
+          fData.push({})
+        }
+      }
+      return fData
     },
 
     totalApproved() {
@@ -195,13 +224,22 @@ export default {
       return this.currentPage <= this.pageCount - 2
     }
   },
-
-  beforeMount() {
-    this.kayanYazi()
-  },
-
   mounted() {
+    debugger
+    var currentUrl =
+      window.location.href || 'http://10.10.10.18:9080/maximo-dashboard/'
+    var appName = 'maximo-dashboard'
+    var appNameIndex = currentUrl.lastIndexOf(appName)
+    if (appNameIndex > 0) {
+      currentUrl = currentUrl.substring(0, appNameIndex + appName.length)
+    }
+    this.$axios.defaults.baseURL = currentUrl
+
     this.loading = true
+    setInterval(() => {
+      this.loadAsyncBulletinBoardData()
+    }, 5000)
+
     setInterval(() => {
       this.loadAsyncData()
     }, 1000)
@@ -222,33 +260,52 @@ export default {
   },
 
   methods: {
-    kayanYazi() {
+    async loadAsyncBulletinBoardData() {
       this.$axios
-        .get(`http://<ip>:9080/maximo-dashboard/api/bulletinboard/`, {
+        .get(`/api/bulletinboard/`, {
           crossDomain: true
         })
         .then(({ data }) => {
-          this.kayanYaziWrapper = data.data
+          var oldMessages = this.kayanYaziWrapper.map(function(m) {
+            return m.message
+          })
+          var oldMessagesString = oldMessages.join()
+
+          var newMessages = data.data.map(function(m) {
+            return m.message
+          })
+          var newMessagesString = newMessages.join()
+
+          if (oldMessagesString !== newMessagesString) {
+            this.kayanYaziWrapper = data.data
+          }
         })
         .catch(error => {
+          this.kayanYaziWrapper = []
           throw error
         })
     },
-
     secondsToFullHour(item) {
+      if (!item) {
+        return null
+      }
       var date = new Date(null)
       date.setSeconds(item)
       const result = date.toISOString().substr(11, 5)
       return result
     },
+    timestampToDateString(ts) {
+      if (!ts) {
+        return null
+      }
+      var dString = new Date(ts).toLocaleString('tr')
+      return dString
+    },
     async loadAsyncData() {
       this.$axios
-        .get(
-          `http://localhost:9080/maximo-dashboard/api/workorder?type=${
-            this.$router.history.current.params.id
-          }`,
-          { crossDomain: true }
-        )
+        .get(`/api/workorder?type=${this.$router.history.current.params.id}`, {
+          crossDomain: true
+        })
         .then(({ data }) => {
           // api.themoviedb.org manage max 1000 pages
           this.data = data.data
@@ -274,30 +331,6 @@ export default {
 </script>
 
 <style>
-html,
-body {
-  background-color: #314150;
-  height: 100%;
-  margin: 0;
-}
-
-#__nuxt {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow: auto;
-}
-#__layout {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  overflow: auto;
-}
-
 thead {
   background-color: #51586a;
 }
@@ -308,19 +341,28 @@ thead {
   text-align: left;
 }
 .table-wrapper {
-  height: 90%;
   background: #fafafa;
 }
-
-th div {
-  height: 50px;
-  width: 100px;
-  overflow: auto;
+.table td,
+.table th {
+  padding: 0.25em 0.25em;
 }
-td div {
-  height: 50px;
-  width: 100px;
-  overflow: auto;
+thead tr {
+  height: 60px;
+}
+tbody tr {
+  height: 60px;
+}
+tr th {
+  height: 60px;
+}
+tr td {
+  height: 60px;
+}
+
+tbody td span {
+  height: 60px;
+  overflow: hidden;
 }
 .perc-wrapper {
   position: relative;
@@ -332,6 +374,10 @@ td div {
   top: -2px;
   font-size: 0.8rem;
   left: 2px;
+}
+
+.perc-value {
+  height: 1rem;
 }
 
 .pagination-previous {
@@ -395,10 +441,76 @@ td div {
   }
 }
 
-.kayan-yazi {
+html {
+  overflow-y: hidden;
+}
+
+body {
+  background-color: #314150;
+  height: 100%;
+  margin: 0;
+}
+
+#__nuxt {
+  height: 100vh;
+}
+#__layout {
+  height: 100vh;
+}
+#main-content {
+  height: 100vh;
+  padding-top: 70px;
+  padding-bottom: 50px;
+}
+
+#content {
+  height: calc(100vh - (70px + 50px));
+}
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100%;
+  height: 70px;
+  background-color: rgb(44, 58, 71);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+#footer {
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: 999;
+  width: 100%;
   height: 50px;
+  background-color: rgb(44, 58, 71);
+}
+.marquee {
+  font-family: 'Comic Sans MS';
+  font-size: 1.5em;
+  font-weight: bold;
+  line-height: 1em;
+  color: #ffffff;
+  padding: 0.5em;
+}
+
+.table_label {
+  height: 33px;
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+.b-table {
+  height: calc(100% - 60px);
+}
+.table-wrapper {
+  height: calc(100% - 40px);
+}
+table {
+  height: 100%;
+  width: 100%;
+  table-layout: fixed;
 }
 </style>
