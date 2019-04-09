@@ -2,8 +2,7 @@
   <section id="main-content">
     <div
       id="header">
-      <h1 class="title has-text-centered has-text-white">{{ ($router.history.current.query.type)?
-      ($router.history.current.query.type).toUpperCase():'TÜM İŞLER' }} </h1>
+      <h1 class="title has-text-centered has-text-white">{{ crewWorkgroupDescription }}</h1>
     </div>
     <div
       id="content"
@@ -39,11 +38,16 @@
 
             <b-table-column
               field="description"
-              label="İsim"
+              label="Sipariş Sahibi"
               sortable>
               <div>{{ props.row.description }}</div>
             </b-table-column>
-
+            <b-table-column
+              field="taskdescription"
+              label="İş Açıklaması"
+              sortable>
+              <div>{{ props.row.taskDescription }}</div>
+            </b-table-column>
             <b-table-column
               field="statusDateTimeStamp"
               label="Gelme Tarihi ve Saati"
@@ -90,11 +94,16 @@
 
             <b-table-column
               field="description"
-              label="İsim"
+              label="Sipariş Sahibi"
               sortable>
               <div>{{ props.row.description }}</div>
             </b-table-column>
-
+            <b-table-column
+              field="taskdescription"
+              label="İş Açıklaması"
+              sortable>
+              <div>{{ props.row.taskDescription }}</div>
+            </b-table-column>
             <b-table-column
               field="statusDateTimeStamp"
               label="Başlama Tarihi ve Saati"
@@ -154,24 +163,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
-  /* async asyncData({ query, params }) {
-    console.log(query, params)
-    // We can use async/await ES6 feature
-    const { data } = await axios
-      .get(`/api/workorder?type=${query.type}`, {
-        crossDomain: true
-      })
-      .catch(error => {
-        this.data = []
-        this.total = 0
-        throw error
-      })
-    return { data: data }
-  }, */
-
   name: 'HomePage',
   data() {
     return {
@@ -201,6 +193,27 @@ export default {
       div.innerHTML = message
       var text = div.textContent || div.innerText || ''
       return text
+    },
+    crewWorkgroupDescription() {
+      if (!this.data) {
+        return null
+      }
+      if (this.data.length == 0) {
+        return null
+      }
+
+      var distinct = []
+      for (var i = 0; i < this.data.length; i++) {
+        if (distinct.indexOf(this.data[i].crewWorkGroupDescription) < 0) {
+          distinct.push(this.data[i].crewWorkGroupDescription)
+        }
+      }
+
+      if (distinct.length > 1) {
+        return 'Tüm İşler'
+      }
+
+      return distinct[0]
     },
     inProgress() {
       var fData = this.data.filter(item => item.status === 'INPRG') || []
@@ -242,7 +255,7 @@ export default {
     }
   },
   mounted() {
-    var currentUrl = 'http://10.10.10.18:9080/maximo-dashboard/'
+    var currentUrl = 'http://192.168.1.151:9080/maximo-dashboard/'
     var appName = 'maximo-dashboard'
     var appNameIndex = currentUrl.lastIndexOf(appName)
     if (appNameIndex > 0) {
@@ -300,14 +313,26 @@ export default {
           throw error
         })
     },
-    secondsToFullHour(item) {
-      if (!item) {
+    secondsToFullHour(duration) {
+      if (!duration) {
         return null
       }
-      var date = new Date(null)
-      date.setSeconds(item)
-      const result = date.toISOString().substr(11, 5)
-      return result
+      var seconds = Math.floor(duration)
+      var hours = Math.floor(seconds / 3600)
+      seconds -= hours * 3600
+      var minutes = Math.floor(seconds / 60)
+      seconds -= minutes * 60
+
+      if (hours < 10) {
+        hours = '0' + hours
+      }
+      if (minutes < 10) {
+        minutes = '0' + minutes
+      }
+      if (seconds < 10) {
+        seconds = '0' + seconds
+      }
+      return hours + ':' + minutes
     },
     timestampToDateString(ts) {
       if (!ts) {
@@ -317,7 +342,6 @@ export default {
       return dString
     },
     async loadAsyncData() {
-      console.log(this.$router.history.current)
       this.$axios
         .get(`/api/workorder?type=${this.$router.history.current.query.type}`, {
           crossDomain: true
